@@ -303,7 +303,7 @@
   }
 
   /* ---------- bubbles ---------- */
-  var bubbles = Array.prototype.map.call(document.querySelectorAll('.bubble'), function (el) { return { el: el, text: el.firstChild, up: false, t: 0, w: 0, h: 0, left: 0, top: 0, under: false, tail: 0 }; });
+  var bubbles = Array.prototype.map.call(document.querySelectorAll('.bubble'), function (el) { return { el: el, text: el.firstChild, up: false, t: 0, w: 0, h: 0, left: 0, top: 0, pageTop: 0, under: false, tail: 0 }; });
   var tauntGap = 1.2, pointerTaunt = 0;
   /* A line stays where it was said until it has been read: nothing moves it, and nothing cuts it short. */
   function bubbleSpot(b, owner) {
@@ -333,6 +333,7 @@
       return false;
     }
     free.up = true;
+    free.pageTop = free.top + window.scrollY;
     free.t = Math.max(TUNE.bubbleMin, TUNE.bubbleBase + line.length * TUNE.bubblePerChar);
     free.el.classList.remove('out');
     free.el.classList.toggle('under', free.under);
@@ -345,10 +346,11 @@
     bubbles.forEach(function (b) {
       if (!b.up) { return; }
       b.t -= dt;
-      /* Only scrolling can bring text underneath, and then it bows out instead of covering it. */
-      if (b.t > TUNE.bubbleFade && hitsZone(b.left, b.top, b.w, b.h)) { b.t = TUNE.bubbleFade; }
       if (b.t <= TUNE.bubbleFade) { b.el.classList.add('out'); }
-      if (b.t <= 0) { close(b); }
+      if (b.t <= 0) { close(b); return; }
+      /* It is pinned to the page, so scrolling carries it along with the text instead of over it. */
+      b.top = b.pageTop - window.scrollY;
+      b.el.style.transform = 'translate(' + b.left.toFixed(1) + 'px,' + b.top.toFixed(1) + 'px)';
     });
   }
   /* A rival somewhere clear speaks up by itself, so a still mouse and a phone get insulted too. */
