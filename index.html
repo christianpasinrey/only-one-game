@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Only One</title>
+<meta name="description" content="De 300 millones, solo llega uno. Juego gratis en el navegador: nada, come azúcar, mejora y aguanta los insultos de tus hermanos.">
+<meta name="theme-color" content="#14070f">
+<meta property="og:title" content="Only One">
+<meta property="og:description" content="De 300 millones, solo llega uno. Igual no eres tú.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://only-one.christianpasinrey.es/">
+<meta property="og:image" content="https://only-one.christianpasinrey.es/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/landing.css">
+<link rel="prefetch" href="jugar/index.html">
+</head>
+<body>
+<canvas id="gl" aria-hidden="true"></canvas>
+
+<header class="hud" aria-label="Marcador de la carrera">
+  <div id="rankBox">
+    <small>Rivales por delante</small>
+    <output id="count">300.000.000</output>
+  </div>
+  <a id="topCta" class="go cta" href="jugar/index.html">Salir a nadar</a>
+</header>
+
+<aside id="pip" aria-hidden="true">
+  <span class="live">En directo</span>
+  <canvas id="pipFace" width="360" height="300"></canvas>
+  <div class="plate"><b id="pipName">EL ELEGIDO</b><span id="pipState">Estado: Concentrado</span></div>
+</aside>
+
+<div id="bar" aria-hidden="true">
+  <div class="row"><span id="zone">La salida</span><span id="cm">0,0 / 18 cm</span></div>
+  <div class="track"><i id="fill"></i></div>
+</div>
+
+<div class="bubble" hidden><span></span></div>
+<div class="bubble" hidden><span></span></div>
+<div class="bubble" hidden><span></span></div>
+
+<main>
+  <section class="opening">
+    <h1 id="logo"><span>Only</span> <span>One</span></h1>
+    <p class="strap">Sometimes more, but not this time</p>
+    <div class="pitch">
+      <p class="lead">De 300 millones, solo llega uno. Igual no eres tú.</p>
+      <p>Un juego gratis en el navegador sobre la carrera más guarra de tu vida. Sin descargas ni registro.</p>
+      <a class="go cta big" href="jugar/index.html">Salir a nadar</a>
+      <p id="hint" class="hint">Pasa el ratón por encima. Se lo toman fatal.</p>
+    </div>
+  </section>
+
+  <section class="beat" data-stage="0">
+    <div class="copy">
+      <h2>El Vestíbulo Ácido</h2>
+      <p class="quote">pH de limón, y tú sin paraguas. Aquí palma la mayoría.</p>
+      <p>Aquí no hay raíles. Nadas libre por cavernas con niebla de guerra, con WASD, mando o clic, y el camino lo encuentras tú. Cada rincón esconde azúcar, cofres y pruebas canallas.</p>
+    </div>
+  </section>
+
+  <section class="beat" data-stage="1">
+    <div class="copy">
+      <h2>El Cuello de Botella</h2>
+      <p class="quote">Aquí se atasca hasta tu autoestima.</p>
+      <p>Antes de salir eliges cromosoma, y eso decide lo que te llaman por el camino. Pruébalo:</p>
+      <div class="sex" role="group" aria-label="Elige cromosoma">
+        <button id="pickY" type="button" aria-pressed="true">Cromosoma Y</button>
+        <button id="pickX" type="button" aria-pressed="false">Cromosoma X</button>
+      </div>
+      <p id="sample" class="sample" aria-live="polite">¡Tanto crossfit para esto!</p>
+      <button id="again" class="again" type="button">Otro insulto</button>
+    </div>
+  </section>
+
+  <section class="beat" data-stage="2">
+    <div class="copy">
+      <h2>La Catedral</h2>
+      <p class="quote">Aquí, con tus 8 cm de mastodonte, no llegas.</p>
+      <p>Cada azúcar es ATP y el ATP se gasta en mejoras. Tab, y a la tienda sin soltar la carrera:</p>
+      <dl class="shop">
+        <div><dt>Flagelo</dt><dd>+10 % de velocidad</dd></div>
+        <div><dt>Goloso de mierda</dt><dd>+25 % de ATP por azúcar</dd></div>
+        <div><dt>Escupitajo</dt><dd>Derriba rivales y enemigos</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="beat" data-stage="3">
+    <div class="copy">
+      <h2>La Comisaría</h2>
+      <p class="quote">Papeles, por favor. Ah, que no tienes ni brazos.</p>
+      <p>Aquí te pegan de verdad. Tus hermanos avisan, embisten y escupen. Tienes corazones y vidas, y cada tramo superado es un checkpoint.</p>
+      <p>Doctor Flagelo te sella la salida. Solo le duele cuando se queda sin aliento.</p>
+    </div>
+  </section>
+
+  <section class="beat" data-stage="4">
+    <div class="copy">
+      <h2>El Bosque de Pestañas</h2>
+      <p class="quote">Millones de pelos y ninguno te quiere.</p>
+      <p>Todo lo que haces mal tiene su logro.</p>
+      <ul class="marks">
+        <li><b>Hipertensión is coming</b><span>Por el azúcar que llevas encima</span></li>
+        <li><b>Conductor de BMW</b><span>Por dejar atrás a tantos pringaos</span></li>
+        <li><b>Gargajo olímpico</b><span>Por escupir a tanto palurdo</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="beat" data-stage="5">
+    <div class="copy">
+      <h2>La Antesala</h2>
+      <p class="quote">Ahora no la cagues, que te está mirando todo el mundo.</p>
+      <p>Dos trompas, y solo una lleva a algún sitio. Si aciertas, te espera el óvulo. Si ganas, nueva camada: vuelves a empezar con un rasgo heredado y más mala leche.</p>
+    </div>
+  </section>
+
+  <section class="ending">
+    <div class="last">
+      <h2>Solo queda uno</h2>
+      <p class="lead">Hoy podrías ser tú.</p>
+      <a class="go cta big" href="jugar/index.html">Salir a nadar</a>
+      <p class="small">Tacos, humor guarro y biología mal explicada, solo para mayores de 18. Mejor con teclado o mando. Tu partida se guarda en este navegador, sin cookies ni registro.</p>
+    </div>
+  </section>
+</main>
+
+<script src="assets/three.min.js"></script>
+<script src="jugar/js/data.js"></script>
+<script src="jugar/js/audio.js"></script>
+<script src="jugar/js/faces.js"></script>
+<script src="assets/landing.js"></script>
+</body>
+</html>
