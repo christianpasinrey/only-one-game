@@ -68,7 +68,7 @@ EG.data = {
   ],
 
   /* Guards hold the door of a stage. They only bleed while catching their breath, by spit or by a sprint into them. */
-  GUARD: { size: 3.2, post: 3, fight: 60, open: 1.8, rest: 1.1, stagger: 0.7, engage: 34, ringRange: 16, hold: 10, chase: 0.7, touch: 5, bounce: 34, afterHit: 0.6, shots: 3, pay: 200, payPerStage: 150, sealKick: 40, sealGap: 0.8, hint: ['Está sin aliento', 'Dispárale o embístelo esprintando: solo le duele ahora'] },
+  GUARD: { size: 3.2, post: 3, fight: 60, open: 1.8, rest: 1.1, stagger: 0.7, engage: 34, ringRange: 16, hold: 10, chase: 0.7, touch: 5, bounce: 34, afterHit: 0.6, shots: 3, pay: 200, payPerStage: 150, sealKick: 40, sealGap: 0.8, hint: ['Está sin aliento', 'Suéltale un lefazo o embístelo esprintando: solo le duele ahora'] },
 
   /* Finishing the game starts a new litter: genes pay more, the body has learned, and an inherited trait gives and takes. */
   LITTER: { genes: 0.1, heat: 0.12, minWindup: 0.45, extraFrom: 2, choices: 3 },
@@ -163,7 +163,7 @@ EG.data = {
   MARKS: {
     sugar: { base: 10, text: 'Has consumido {n} azúcares', pay: 1.5, titles: ['Goloso de barrio', 'Hipertensión is coming', 'Vaya diabetes más sexy', 'Páncreas en huelga', 'Insulina, por favor', 'El Rey del Terrón'] },
     passed: { base: 5, text: 'Has dejado atrás a {n} pringaos', pay: 5, titles: ['Primer adelantamiento', 'Sin intermitente', 'Conductor de BMW', 'El Fernando Alonso del flagelo', 'Darwin te manda saludos'] },
-    spat: { base: 3, text: 'Has rociado a {n} palurdos', pay: 8, titles: ['Primera descarga', 'Gatillo fácil', 'Falta de educación', 'Lefazo olímpico', 'Tu madre no te crió así'] },
+    spat: { base: 3, text: 'Has lefado a {n} palurdos', pay: 8, titles: ['Primer lefazo', 'Gatillo fácil', 'Lefazo olímpico', 'Lefator', 'Lefator 2: el juicio final'] },
     burst: { base: 2, text: 'Has reventado a {n} bichos', pay: 20, titles: ['Fumigador', 'Antibiótico con patas', 'Plaga bíblica', 'Sistema inmune, dimite'] },
     streak: { base: 8, text: 'Racha de {n} azúcares seguidos', pay: 6, titles: ['Mono de azúcar', 'Subidón de merienda', 'Esto ya es un problema', 'Llamen a Endocrino'] },
     cm: { base: 1, text: 'Has nadado {n} cm', pay: 40, titles: ['Un centímetro de orgullo', 'Medio palmo', 'Eso dice él', 'Récord de la pandilla', 'Ya no mientes'] },

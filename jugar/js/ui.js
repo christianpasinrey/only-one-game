@@ -260,8 +260,8 @@ EG.ui = (function () {
       label(196, 168, 40, 150, 'Stick: nadar', -1) +
       label(242, 242, 60, 262, 'Cruceta: menús', -1) +
       label(444, 56, 560, 26, 'RT: esprintar', 1) +
-      label(490, 74, 600, 74, 'RB: disparar', 1) +
-      label(434, 164, 620, 130, 'X: disparar', 1) +
+      label(490, 74, 600, 74, 'RB: lefazo', 1) +
+      label(434, 164, 620, 130, 'X: lefazo', 1) +
       label(497, 164, 620, 176, 'B: volver', 1) +
       label(465, 194, 620, 222, 'A: esprintar / aceptar', 1) +
       label(344, 170, 620, 288, 'Menú: pausa', 1) +

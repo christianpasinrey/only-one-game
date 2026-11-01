@@ -35,7 +35,7 @@ Antes de salir eliges cromosoma X o Y, y eso cambia los insultos y el trato del 
 | --- | --- | --- | --- |
 | Nadar | WASD, flechas o clic | Stick izquierdo | Arrastrar el dedo o tocar un punto |
 | Esprintar | Mayús o Espacio | RT o A | Botón Esprint |
-| Disparar el Cañón de lefa | F, E o clic derecho | RB o X | Botón Disparar, que apunta solo |
+| Lefazo con el Cañón de lefa | F, E o clic derecho | RB o X | Botón Lefazo, que apunta solo |
 | Mejoras | Tab | LB | Botón Mejoras |
 | Pausa | Esc | Start | Botón Pausa |
 
