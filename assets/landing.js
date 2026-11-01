@@ -10,7 +10,7 @@
 
   var TUNE = {
     swarm: 3400, swarmPhone: 1500, last: 0.92, sizeLogo: 15, sizeRace: 28, sizeEnd: 235, heroSize: 74, heroEnd: 300,
-    scare: 110, tauntEvery: 2.3, tauntNear: 0.9, bubbleLife: 3.4, fadeRate: 8, dive: 1.25
+    scare: 110, tauntEvery: 2.6, tauntNear: 1.8, bubbleMin: 3.2, bubbleBase: 1.8, bubblePerChar: 0.06, bubbleFade: 0.22, fadeRate: 8, dive: 1.25
   };
   var GO_KEY = 'only-one-go';
 
@@ -85,7 +85,7 @@
   }
   function readZones() {
     zones.length = 0;
-    document.querySelectorAll('.copy, .pitch, .strap, .last, #rankBox, #topCta, #pip, #bar').forEach(function (el) {
+    document.querySelectorAll('.copy, .pitch, .strap, .last, #rankBox, .actions, #pip, #bar').forEach(function (el) {
       var r = el.getBoundingClientRect();
       if (r.width && r.bottom > 0 && r.top < H) { zones.push(r); }
     });
@@ -229,7 +229,7 @@
       'attribute vec2 iPos; attribute float iAng, iSize; attribute vec4 iData;',
       'uniform vec2 res; varying vec2 vP; varying vec4 vD; varying float vS;',
       'void main() {',
-      '  float c = cos(iAng), s = sin(iAng), up = c < 0.0 ? -1.0 : 1.0;',
+      '  float c = cos(iAng), s = sin(iAng), up = c < 0.0 ? 1.0 : -1.0;',
       '  vec2 at = iPos + vec2(position.x * c - position.y * s, position.x * s + position.y * c) * iSize;',
       '  vP = vec2(position.x, position.y * up); vD = iData; vS = iSize;',
       '  gl_Position = vec4(at.x / res.x * 2.0 - 1.0, 1.0 - at.y / res.y * 2.0, 0.0, 1.0);',
@@ -303,43 +303,52 @@
   }
 
   /* ---------- bubbles ---------- */
-  var bubbles = Array.prototype.map.call(document.querySelectorAll('.bubble'), function (el) { return { el: el, text: el.firstChild, owner: -1, t: 0, w: 0, h: 0 }; });
+  var bubbles = Array.prototype.map.call(document.querySelectorAll('.bubble'), function (el) { return { el: el, text: el.firstChild, up: false, t: 0, w: 0, h: 0, left: 0, top: 0, under: false, tail: 0 }; });
   var tauntGap = 1.2, pointerTaunt = 0;
-  function say(owner) {
-    var free = null;
-    bubbles.forEach(function (b) { if (b.owner < 0 && !free) { free = b; } });
-    if (!free || (phone && bubbles.filter(function (b) { return b.owner >= 0; }).length >= 2)) { return false; }
-    free.text.textContent = insult();
-    free.el.hidden = false;
-    free.owner = owner;
-    free.t = TUNE.bubbleLife;
-    free.w = free.el.offsetWidth;
-    free.h = free.el.offsetHeight;
-    return true;
-  }
-  function bubbleSpot(b) {
-    var x = px[b.owner], y = py[b.owner], size = attrSize[b.owner], gap = 12 + size * 0.14;
+  /* A line stays where it was said until it has been read: nothing moves it, and nothing cuts it short. */
+  function bubbleSpot(b, owner) {
+    var x = px[owner], y = py[owner], gap = 12 + attrSize[owner] * 0.14;
     var left = clamp(x - b.w / 2, 12, W - b.w - 12), top = y - gap - b.h, under = top < 76;
     if (under) { top = y + gap; }
     b.left = left; b.top = top; b.under = under; b.tail = clamp(x - left, 16, b.w - 16);
   }
-  function close(b) { b.owner = -1; b.el.hidden = true; }
   function hitsBubble(b) {
     return bubbles.some(function (o) {
-      return o !== b && o.owner >= 0 && o.left !== undefined && o.settled && b.left < o.left + o.w && b.left + b.w > o.left && b.top < o.top + o.h && b.top + b.h > o.top;
+      return o !== b && o.up && b.left < o.left + o.w + 8 && b.left + b.w + 8 > o.left && b.top < o.top + o.h + 8 && b.top + b.h + 8 > o.top;
     });
   }
+  function say(owner) {
+    var free = null, showing = bubbles.filter(function (b) { return b.up; }).length;
+    bubbles.forEach(function (b) { if (!b.up && !free) { free = b; } });
+    if (!free || (phone && showing >= 2)) { return false; }
+    var line = insult();
+    free.text.textContent = line;
+    free.el.hidden = false;
+    free.w = free.el.offsetWidth;
+    free.h = free.el.offsetHeight;
+    bubbleSpot(free, owner);
+    if (hitsZone(free.left, free.top, free.w, free.h) || hitsBubble(free)) {
+      free.el.hidden = true;
+      deck.push(line);
+      return false;
+    }
+    free.up = true;
+    free.t = Math.max(TUNE.bubbleMin, TUNE.bubbleBase + line.length * TUNE.bubblePerChar);
+    free.el.classList.remove('out');
+    free.el.classList.toggle('under', free.under);
+    free.el.style.setProperty('--tail', free.tail.toFixed(0) + 'px');
+    free.el.style.transform = 'translate(' + free.left.toFixed(1) + 'px,' + free.top.toFixed(1) + 'px)';
+    return true;
+  }
+  function close(b) { b.up = false; b.t = 0; b.el.hidden = true; b.el.classList.remove('out'); }
   function updateBubbles(dt) {
     bubbles.forEach(function (b) {
-      if (b.owner < 0) { return; }
+      if (!b.up) { return; }
       b.t -= dt;
-      bubbleSpot(b);
-      var off = px[b.owner] < -20 || px[b.owner] > W + 20 || py[b.owner] < -20 || py[b.owner] > H + 20;
-      if (b.t <= 0 || life[b.owner] < 0.5 || off || hitsZone(b.left, b.top, b.w, b.h) || hitsBubble(b)) { close(b); b.settled = false; return; }
-      b.settled = true;
-      b.el.classList.toggle('under', b.under);
-      b.el.style.setProperty('--tail', b.tail.toFixed(0) + 'px');
-      b.el.style.transform = 'translate(' + b.left.toFixed(1) + 'px,' + b.top.toFixed(1) + 'px)';
+      /* Only scrolling can bring text underneath, and then it bows out instead of covering it. */
+      if (b.t > TUNE.bubbleFade && hitsZone(b.left, b.top, b.w, b.h)) { b.t = TUNE.bubbleFade; }
+      if (b.t <= TUNE.bubbleFade) { b.el.classList.add('out'); }
+      if (b.t <= 0) { close(b); }
     });
   }
   /* A rival somewhere clear speaks up by itself, so a still mouse and a phone get insulted too. */
@@ -347,9 +356,7 @@
     for (var tries = 0; tries < 40; tries++) {
       var n = Math.floor(Math.random() * N);
       if (life[n] < 0.9 || px[n] < 40 || px[n] > W - 40 || py[n] < 100 || py[n] > H - 90) { continue; }
-      var probe = { owner: n, w: 170, h: 40 };
-      bubbleSpot(probe);
-      if (!hitsZone(probe.left, probe.top, probe.w, probe.h)) { say(n); return; }
+      if (say(n)) { return; }
     }
   }
 

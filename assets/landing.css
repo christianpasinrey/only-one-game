@@ -25,6 +25,10 @@ a, button { font: inherit; color: inherit; }
 /* ---------- broadcast graphics ---------- */
 .hud { position: fixed; z-index: 7; inset: 0 0 auto; display: flex; justify-content: space-between; align-items: flex-start; padding: calc(12px + env(safe-area-inset-top, 0px)) var(--gutter-r) 26px var(--gutter-l); background: linear-gradient(rgba(20, 7, 15, .72), rgba(20, 7, 15, 0)); pointer-events: none; }
 .hud a { pointer-events: auto; }
+.actions { display: flex; align-items: center; gap: 12px; }
+#ghLink { display: grid; place-items: center; width: 42px; height: 42px; color: var(--ink); background: rgba(20, 7, 15, .6); transform: skewX(-8deg); transition: color .12s, background-color .12s; }
+#ghLink svg { transform: skewX(8deg); }
+#ghLink:hover { color: var(--print); background: var(--gold); }
 #rankBox small { display: block; font: 500 14px/1 var(--broadcast); letter-spacing: .1em; text-transform: uppercase; }
 #count { display: block; font: italic 800 clamp(32px, 5vw, 56px)/1 var(--broadcast); font-variant-numeric: tabular-nums; text-shadow: 0 3px 16px rgba(0, 0, 0, .8); }
 #bar { position: fixed; z-index: 7; inset: auto 0 0; background: linear-gradient(rgba(20, 7, 15, 0), rgba(20, 7, 15, .8) 40%); padding: 18px var(--gutter-r) calc(10px + env(safe-area-inset-bottom, 0px)) var(--gutter-l); pointer-events: none; font: 700 16px/1 var(--broadcast); text-shadow: 0 1px 6px #000; }
@@ -38,7 +42,8 @@ a, button { font: inherit; color: inherit; }
 #pip .plate { padding: 6px 8px 8px; color: var(--print); font: 500 14px/1.1 var(--broadcast); }
 #pip b { display: block; font: italic 800 20px/1 var(--broadcast); }
 
-.bubble { position: fixed; z-index: 5; left: 0; top: 0; max-width: 240px; padding: 7px 12px 8px; border-radius: 14px; color: var(--print); background: var(--ink); font: italic 800 20px/1.1 var(--broadcast); box-shadow: 0 4px 14px rgba(0, 0, 0, .45); pointer-events: none; will-change: transform; }
+.bubble.out { opacity: 0; }
+.bubble { transition: opacity .22s ease-out; position: fixed; z-index: 5; left: 0; top: 0; max-width: 240px; padding: 7px 12px 8px; border-radius: 14px; color: var(--print); background: var(--ink); font: italic 800 20px/1.1 var(--broadcast); box-shadow: 0 4px 14px rgba(0, 0, 0, .45); pointer-events: none; will-change: transform; }
 .bubble::after { content: ""; position: absolute; left: var(--tail, 50%); top: 100%; margin-left: -8px; border: 8px solid transparent; border-top-color: var(--ink); border-bottom: 0; }
 .bubble.under::after { top: auto; bottom: 100%; border: 8px solid transparent; border-bottom-color: var(--ink); border-top: 0; }
 

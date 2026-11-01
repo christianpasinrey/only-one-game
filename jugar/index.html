@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Only One: a nadar</title>
 <meta name="description" content="De 300 millones, solo llega uno. Juega gratis en el navegador.">
 <meta name="theme-color" content="#14070f">
@@ -250,6 +250,41 @@ body.in-menu #hud, body.in-menu #minimap, body.in-menu #mash, body.in-menu #bubb
   #ending { transition: none; }
 }
 #title a.item { text-decoration: none; text-align: center; }
+
+/* ---------- fingers ---------- */
+html, body { overscroll-behavior: none; }
+button, a { touch-action: manipulation; }
+#touchPad, #stick, #touchHelp, #simonPad { display: none; }
+body.touch { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+body.touch #spitBtn, body.touch #marks { display: none; }
+body.touch .tools { top: calc(84px + env(safe-area-inset-top, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); }
+body.touch .tools button { padding: 9px 12px; }
+body.touch #minimap { top: calc(128px + env(safe-area-inset-top, 0px)); bottom: auto; right: max(10px, env(safe-area-inset-right, 0px)); width: 112px; }
+body.touch #pip { left: max(10px, env(safe-area-inset-left, 0px)); bottom: calc(56px + env(safe-area-inset-bottom, 0px)); width: 104px; }
+body.touch #touchPad { display: block; position: fixed; z-index: 7; right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(58px + env(safe-area-inset-bottom, 0px)); width: 170px; height: 170px; pointer-events: none; }
+#touchPad button { position: absolute; display: grid; place-items: center; padding: 0; border-radius: 50%; border: 3px solid var(--gold); color: var(--ink); background: rgba(20, 7, 15, .6); font: italic 800 21px/1 var(--broadcast); pointer-events: auto; touch-action: none; }
+#sprintTouch { right: 0; bottom: 0; width: 96px; height: 96px; }
+#spitTouch { left: 0; top: 0; width: 78px; height: 78px; font-size: 18px; border-color: var(--hot); }
+#touchPad button.held { color: #1c0d08; background: var(--gold); }
+body.touch #stick:not([hidden]) { display: block; position: fixed; z-index: 6; left: -58px; top: -58px; width: 116px; height: 116px; border-radius: 50%; border: 2px solid rgba(251, 241, 227, .55); background: rgba(20, 7, 15, .3); pointer-events: none; }
+#stick i { position: absolute; left: 30px; top: 30px; width: 52px; height: 52px; border-radius: 50%; background: rgba(251, 241, 227, .75); }
+body.touch #touchHelp { display: block; }
+body.touch .maps figure:not(#touchHelp) { display: none; }
+body.touch #simonPad:not([hidden]) { display: grid; grid-template-columns: repeat(3, 72px); grid-template-rows: repeat(2, 72px); gap: 8px; justify-content: center; margin-top: 14px; }
+#simonPad button { border: 2px solid var(--gold); background: rgba(20, 7, 15, .6); font: 800 30px var(--broadcast); }
+#simonPad button:active { color: #1c0d08; background: var(--gold); }
+#simonPad button:nth-child(1) { grid-area: 1 / 2; }
+#simonPad button:nth-child(2) { grid-area: 2 / 2; }
+#simonPad button:nth-child(3) { grid-area: 2 / 1; }
+#simonPad button:nth-child(4) { grid-area: 2 / 3; }
+@media (max-height: 480px) {
+  body.touch .tools { top: calc(10px + env(safe-area-inset-top, 0px)); right: 96px; }
+  body.touch #minimap { top: calc(70px + env(safe-area-inset-top, 0px)); width: 84px; }
+  body.touch #pip { top: calc(106px + env(safe-area-inset-top, 0px)); bottom: auto; width: 84px; }
+  body.touch #pip .liveTag { font-size: 11px; white-space: nowrap; }
+  body.touch #pip > :last-child { display: none; }
+  body.touch #touchPad { bottom: calc(50px + env(safe-area-inset-bottom, 0px)); }
+}
 </style>
 </head>
 <body>
@@ -264,10 +299,11 @@ body.in-menu #hud, body.in-menu #minimap, body.in-menu #mash, body.in-menu #bubb
   </div>
   <div id="guardBar" hidden><span id="guardName"></span><div class="meter"><i id="guardHp"></i></div></div>
   <div class="tools">
-    <button id="spitBtn" type="button" hidden>Escupir (F)</button>
+    <button id="spitBtn" type="button" hidden>Disparar (F)</button>
     <button id="menuBtn" type="button">Mejoras (Tab)</button>
     <button id="pauseBtn" type="button">Pausa (Esc)</button>
   </div>
+  <div id="touchPad"><button id="spitTouch" type="button" hidden>Disparar</button><button id="sprintTouch" type="button">Esprint</button></div>
   <div id="pip">
     <div id="pipView"><div class="liveTag">EN DIRECTO</div></div>
     <div class="strap"><b id="strapName">EL ELEGIDO</b><span>Estado: <span id="moodLabel">Concentrado</span></span></div>
@@ -288,6 +324,7 @@ body.in-menu #hud, body.in-menu #minimap, body.in-menu #mash, body.in-menu #bubb
 <div id="stageCard" aria-live="polite"><div id="stageNum"></div><div id="stageName"></div><div id="stageLine"></div><div id="stageMedal" hidden></div></div>
 <div id="banner" aria-live="polite"></div>
 <canvas id="minimap" width="240" height="170" aria-label="Mapa descubierto" hidden></canvas>
+<div id="stick" hidden><i></i></div>
 <div id="mash" hidden><b>¡DALE, COÑO! ¡DALE!</b><div class="meter"><i id="eggBar"></i></div></div>
 
 <section id="title" class="screen" hidden aria-label="Inicio">
@@ -320,6 +357,7 @@ body.in-menu #hud, body.in-menu #minimap, body.in-menu #mash, body.in-menu #bubb
     <h2 id="puzzleTitle"></h2>
     <p id="puzzleText" class="puzzleText"></p>
     <div id="puzzleSeq" class="seq"></div>
+    <div id="simonPad" hidden><button type="button" aria-label="Arriba">↑</button><button type="button" aria-label="Abajo">↓</button><button type="button" aria-label="Izquierda">←</button><button type="button" aria-label="Derecha">→</button></div>
     <div id="puzzleOptions" class="menuList" style="width:min(640px,100%)"></div>
   </div>
 </section>
@@ -389,13 +427,23 @@ body.in-menu #hud, body.in-menu #minimap, body.in-menu #mash, body.in-menu #bubb
   <div class="sheet">
     <h2>Controles</h2>
     <div class="maps">
+      <figure id="touchHelp">
+        <figcaption>Con el dedo</figcaption>
+        <ul class="keylist">
+          <li><b>Arrastrar en cualquier sitio:</b> nadar</li>
+          <li><b>Tocar un punto:</b> ir solo hasta ahí</li>
+          <li><b>Esprint:</b> mantener pulsado</li>
+          <li><b>Disparar:</b> apunta solo al rival más cercano</li>
+          <li><b>Óvulo:</b> tocar la pantalla como un animal</li>
+        </ul>
+      </figure>
       <figure>
         <figcaption>Teclado y ratón</figcaption>
         <div id="keyboardMap"></div>
         <ul class="keylist">
           <li><b>WASD / flechas o clic:</b> nadar</li>
           <li><b>Mayús / Espacio:</b> esprintar</li>
-          <li><b>F / E / clic derecho:</b> escupir</li>
+          <li><b>F / E / clic derecho:</b> disparar</li>
           <li><b>Tab:</b> mejoras</li>
           <li><b>Esc:</b> pausa</li>
         </ul>

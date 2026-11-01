@@ -463,11 +463,23 @@ EG.game = (function () {
     return true;
   };
 
-  game.spit = function () {
+  /* A thumb cannot aim and swim at once: the nearest rival in sight and in range takes the spit. */
+  function nearestTarget(r) {
+    var best = null, bestD = D.TOUCH.aim;
+    gfx.rivals.forEach(function (o) {
+      var q = o.state;
+      if (!q || !o.body.visible || q.down > 0) { return; }
+      var d = Math.hypot(q.x - r.x, q.z - r.z);
+      if (d < bestD) { bestD = d; best = q; }
+    });
+    return best;
+  }
+  game.spit = function (assisted) {
     var r = run;
     if (!r || phase !== 'race' || r.st.spits < 1 || r.spitCool > 0) { return; }
     r.spitCool = r.st.spitWait;
-    var n = r.st.spits, base = Math.atan2(r.dirX, r.dirZ);
+    var target = assisted ? nearestTarget(r) : null;
+    var n = r.st.spits, base = target ? Math.atan2(target.x - r.x, target.z - r.z) : Math.atan2(r.dirX, r.dirZ);
     for (var i = 0; i < n && r.spits.length < 40; i++) {
       var a = base + (i - (n - 1) / 2) * 0.16;
       r.spits.push({ x: r.x, z: r.z, vx: Math.sin(a) * 62, vz: Math.cos(a) * 62, life: 0.75 });

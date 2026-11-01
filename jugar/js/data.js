@@ -7,6 +7,8 @@ EG.data = {
   CAVE_SCALE: 4,
   EGG_GAP: 12,
   RIVALS_TOTAL: 3e8,
+  /* Fingers: how far the stick travels in px, how much slip still counts as a tap, how long a tap lasts, and how far a spit looks for a target. */
+  TOUCH: { stick: 58, slip: 12, tap: 0.25, aim: 46 },
   SAVE_KEY: 'el-elegido-5',
   SETTINGS_KEY: 'el-elegido-ajustes',
 
@@ -66,7 +68,7 @@ EG.data = {
   ],
 
   /* Guards hold the door of a stage. They only bleed while catching their breath, by spit or by a sprint into them. */
-  GUARD: { size: 3.2, post: 3, fight: 60, open: 1.8, rest: 1.1, stagger: 0.7, engage: 34, ringRange: 16, hold: 10, chase: 0.7, touch: 5, bounce: 34, afterHit: 0.6, shots: 3, pay: 200, payPerStage: 150, sealKick: 40, sealGap: 0.8, hint: ['Está sin aliento', 'Escúpele o embístelo esprintando: solo le duele ahora'] },
+  GUARD: { size: 3.2, post: 3, fight: 60, open: 1.8, rest: 1.1, stagger: 0.7, engage: 34, ringRange: 16, hold: 10, chase: 0.7, touch: 5, bounce: 34, afterHit: 0.6, shots: 3, pay: 200, payPerStage: 150, sealKick: 40, sealGap: 0.8, hint: ['Está sin aliento', 'Dispárale o embístelo esprintando: solo le duele ahora'] },
 
   /* Finishing the game starts a new litter: genes pay more, the body has learned, and an inherited trait gives and takes. */
   LITTER: { genes: 0.1, heat: 0.12, minWindup: 0.45, extraFrom: 2, choices: 3 },
@@ -142,7 +144,7 @@ EG.data = {
     { id: 'flagelo', name: 'Flagelo', desc: '+10 % de velocidad', base: 10, grow: 1.42, max: 22, seen: 0 },
     { id: 'mito', name: 'Mitocondrias', desc: '+18 % de energía', base: 12, grow: 1.46, max: 22, seen: 0 },
     { id: 'azucar', name: 'Goloso de mierda', desc: '+25 % de ATP por azúcar', base: 15, grow: 1.4, max: 26, seen: 0 },
-    { id: 'escupir', name: 'Escupitajo', desc: 'Derriba rivales y enemigos. Cada nivel, uno más y más seguido', base: 30, grow: 1.85, max: 8, seen: 0.01 },
+    { id: 'escupir', name: 'Cañón de lefa', desc: 'Derriba rivales y enemigos. Cada nivel, uno más y más seguido', base: 30, grow: 1.85, max: 8, seen: 0.01 },
     { id: 'iman', name: 'Quimiotaxis', desc: 'Atraes el azúcar desde más lejos', base: 40, grow: 1.9, max: 10, seen: 0.02 },
     { id: 'vista', name: 'Ojos saltones', desc: 'Ves más lejos entre la niebla', base: 50, grow: 1.8, max: 8, seen: 0.02 },
     { id: 'racha', name: 'Mentalidad de tiburón', desc: 'Sube el multiplicador máximo', base: 120, grow: 1.8, max: 8, seen: 0.08 },
@@ -161,7 +163,7 @@ EG.data = {
   MARKS: {
     sugar: { base: 10, text: 'Has consumido {n} azúcares', pay: 1.5, titles: ['Goloso de barrio', 'Hipertensión is coming', 'Vaya diabetes más sexy', 'Páncreas en huelga', 'Insulina, por favor', 'El Rey del Terrón'] },
     passed: { base: 5, text: 'Has dejado atrás a {n} pringaos', pay: 5, titles: ['Primer adelantamiento', 'Sin intermitente', 'Conductor de BMW', 'El Fernando Alonso del flagelo', 'Darwin te manda saludos'] },
-    spat: { base: 3, text: 'Has escupido a {n} palurdos', pay: 8, titles: ['Lapo inaugural', 'Llama de manual', 'Falta de educación', 'Gargajo olímpico', 'Tu madre no te crió así'] },
+    spat: { base: 3, text: 'Has rociado a {n} palurdos', pay: 8, titles: ['Primera descarga', 'Gatillo fácil', 'Falta de educación', 'Lefazo olímpico', 'Tu madre no te crió así'] },
     burst: { base: 2, text: 'Has reventado a {n} bichos', pay: 20, titles: ['Fumigador', 'Antibiótico con patas', 'Plaga bíblica', 'Sistema inmune, dimite'] },
     streak: { base: 8, text: 'Racha de {n} azúcares seguidos', pay: 6, titles: ['Mono de azúcar', 'Subidón de merienda', 'Esto ya es un problema', 'Llamen a Endocrino'] },
     cm: { base: 1, text: 'Has nadado {n} cm', pay: 40, titles: ['Un centímetro de orgullo', 'Medio palmo', 'Eso dice él', 'Récord de la pandilla', 'Ya no mientes'] },
@@ -224,7 +226,7 @@ EG.data = {
     tired: ['¡Sin gasolina! ¡Va arrastrándose, el cabrón!', '¡Está echando el hígado! ¡Busca azúcar, coño!', '¡Se ha quedado sin pilas, el muy gomet!', '¡Aquí se acaba tu historia, si no comes, gilipollas!'],
     back: ['¡Hostia del glóbulo! ¡Para atrás, chaval!', '¡Lo devuelve para atrás, el hijoputa!', '¡Marcha atrás de manual! ¡Y luego nos quejamos!', '¡Le han metido una hostia que le ha cambiado el ADN!'],
     spin: ['¡Anticuerpo en toda la jeta!', '¡Qué hostia le ha metido la policía!', '¡Eso es abuso policial y me encanta!', '¡Se le han caído los cromosomas al suelo!'],
-    down: ['¡Lapo en toda la cara! ¡Derribado!', '¡Qué falta de respeto, y qué puntería!', '¡Lo ha dejado KO de un escupitajo!', '¡Le ha escupido en los morros, qué elegancia!', '¡Gargajazo del año, señores!', '¡Eso en mi pueblo se arregla a hostias!'],
+    down: ['¡Lefazo en toda la cara! ¡Derribado!', '¡Qué falta de respeto, y qué puntería!', '¡Lo ha dejado KO de un cañonazo de lefa!', '¡Se la ha dejado en los morros, qué elegancia!', '¡Gargajazo del año, señores!', '¡Eso en mi pueblo se arregla a hostias!'],
     chest: ['¡Botín! ¡Eso es robar a un organismo vivo, cabrón!', '¡Ha encontrado la despensa del cuerpo humano!', '¡Se lleva hasta las pelusas!'],
     secret: ['¡Prueba a la vista! Aquí se separan los gametos de los gilipollas.', '¡Ojo, que este ha encontrado algo que no debía!'],
     win: ['¡Lo ha resuelto! ¡Tiene más de dos neuronas!', '¡Y yo que pensaba que era tonto del culo!'],

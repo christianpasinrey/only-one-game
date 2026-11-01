@@ -8,6 +8,8 @@ EG.ui = (function () {
   var pad = { x: 0, y: 0, sprint: false, held: {}, repeat: 0 };
   var callTime = 0, shownHearts = -1, shownMax = -1, shownLives = -1, shownShare = -1, shownBoon = '';
   var settings = { master: 0.8, sfx: 0.8, ambience: 0.6, shake: true, invert: false, quality: 'alta' };
+  var touchFirst = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  if (touchFirst) { settings.quality = 'media'; }
   try {
     var stored = window.localStorage.getItem(D.SETTINGS_KEY);
     if (stored) { settings = Object.assign(settings, JSON.parse(stored)); }
@@ -31,12 +33,21 @@ EG.ui = (function () {
     if (id) { focusFirst(id); }
   }
   function top() { return stack[stack.length - 1]; }
+  /* A menu opening under a held thumb must not leave the hero swimming. */
+  var finger = { id: null, x: 0, y: 0, ox: 0, oy: 0, born: 0, slid: false, sprint: false }, stick = $('stick');
+  function releaseFinger() {
+    finger.id = null;
+    finger.x = finger.y = 0;
+    finger.sprint = false;
+    stick.hidden = true;
+  }
   function focusFirst(id) {
     if (id === 'shop') { drawShop(); }
     var first = $(id).querySelector('.nav:not([hidden])');
     if (first) { first.focus({ preventScroll: false }); }
   }
   function open(id) {
+    releaseFinger();
     stack.push(id);
     keys = {}; pointer.down = false;
     show(id);
@@ -75,6 +86,11 @@ EG.ui = (function () {
     stack = [];
     show(null);
     game.start();
+    if (document.body.classList.contains('touch') && !settings.touchTold) {
+      settings.touchTold = true;
+      persistSettings();
+      setTimeout(function () { ui.toast('Arrastra el dedo para nadar', 'O toca un punto y vas solo'); }, 4800);
+    }
     stage.focus();
     $('hud').hidden = false;
     $('minimap').hidden = false;
@@ -244,8 +260,8 @@ EG.ui = (function () {
       label(196, 168, 40, 150, 'Stick: nadar', -1) +
       label(242, 242, 60, 262, 'Cruceta: menús', -1) +
       label(444, 56, 560, 26, 'RT: esprintar', 1) +
-      label(490, 74, 600, 74, 'RB: escupir', 1) +
-      label(434, 164, 620, 130, 'X: escupir', 1) +
+      label(490, 74, 600, 74, 'RB: disparar', 1) +
+      label(434, 164, 620, 130, 'X: disparar', 1) +
       label(497, 164, 620, 176, 'B: volver', 1) +
       label(465, 194, 620, 222, 'A: esprintar / aceptar', 1) +
       label(344, 170, 620, 288, 'Menú: pausa', 1) +
@@ -298,7 +314,7 @@ EG.ui = (function () {
   };
 
   /* ---------- text over the world ---------- */
-  var HUD_ZONES = '.score > div, .tools, #pip, #minimap, .bars, #toasts, #guardBar, #banner.show, #stageCard.show';
+  var HUD_ZONES = '.score > div, .tools, #pip, #minimap, .bars, #toasts, #guardBar, #banner.show, #stageCard.show, #sprintTouch, #spitTouch';
   var safe = { l: 0, t: 0, r: 0, b: 0 }, zones = [], zoneCount = 0, zoneTime = 0;
   var anchor = { x: 0, y: 0 }, heroAt = { x: 0, y: 0 }, heroZone = { l: 0, t: 0, r: 0, b: 0 };
 
@@ -693,9 +709,11 @@ EG.ui = (function () {
   ui.puzzle = function (kind) {
     $('puzzleOptions').textContent = '';
     $('puzzleSeq').textContent = '';
+    $('simonPad').hidden = true;
     if (kind === 'simon') {
       $('puzzleTitle').textContent = 'Control de esfínter';
-      $('puzzleText').textContent = 'Memoriza la secuencia y repítela con WASD, flechas o cruceta. Sin cagarla.';
+      $('puzzleText').textContent = document.body.classList.contains('touch') ? 'Memoriza la secuencia y repítela con las flechas. Sin cagarla.' : 'Memoriza la secuencia y repítela con WASD, flechas o cruceta. Sin cagarla.';
+      $('simonPad').hidden = false;
       var seq = [];
       for (var i = 0; i < 5; i++) { seq.push(ARROWS[Math.floor(Math.random() * 4)]); }
       simon = { seq: seq, at: 0, showing: true };
@@ -801,19 +819,89 @@ EG.ui = (function () {
     $('cm').textContent = (game.progress() * 18).toLocaleString('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' / 18 cm';
     $('moodLabel').textContent = game.voice(D.MOODS[gfx.hero.mood()] || '');
     $('spitBtn').hidden = game.level('escupir') < 1;
+    $('spitTouch').hidden = $('spitBtn').hidden;
     if (stack[stack.length - 1] === 'shop') { $('bank').textContent = game.fmt(save.atp); }
     updateBubbles(dt, r);
     updateToasts(dt);
   };
 
   /* ---------- input ---------- */
+  /* The whole screen is the stick: it appears under the thumb and follows it. A quick tap walks to that spot instead. */
+  function useTouch() {
+    if (document.body.classList.contains('touch')) { return; }
+    document.body.classList.add('touch');
+    $('menuBtn').textContent = 'Mejoras';
+    $('pauseBtn').textContent = 'Pausa';
+    readZones();
+  }
+  function placeStick(px, py) {
+    stick.style.transform = 'translate(' + px + 'px,' + py + 'px)';
+  }
+  function fingerDown(e) {
+    finger.id = e.pointerId;
+    finger.ox = e.clientX; finger.oy = e.clientY;
+    finger.born = performance.now();
+    finger.slid = false;
+    stage.setPointerCapture(e.pointerId);
+  }
+  function fingerMove(e) {
+    if (e.pointerId !== finger.id) { return; }
+    var R = D.TOUCH.stick, dx = e.clientX - finger.ox, dy = e.clientY - finger.oy, len = Math.hypot(dx, dy);
+    if (!finger.slid) {
+      if (len < D.TOUCH.slip) { return; }
+      finger.slid = true;
+      stick.hidden = false;
+      placeStick(finger.ox, finger.oy);
+    }
+    if (len > R) {
+      finger.ox += dx / len * (len - R); finger.oy += dy / len * (len - R);
+      dx = e.clientX - finger.ox; dy = e.clientY - finger.oy; len = R;
+      placeStick(finger.ox, finger.oy);
+    }
+    finger.x = dx / R; finger.y = -dy / R;
+    stick.firstElementChild.style.transform = 'translate(' + dx.toFixed(0) + 'px,' + dy.toFixed(0) + 'px)';
+  }
+  function fingerUp(e) {
+    if (e.pointerId !== finger.id) { return; }
+    if (e.type === 'pointerup' && !finger.slid && (performance.now() - finger.born) / 1000 < D.TOUCH.tap) { game.clickTo(e.clientX, e.clientY); }
+    finger.id = null;
+    finger.x = finger.y = 0;
+    stick.hidden = true;
+    stick.firstElementChild.style.transform = '';
+  }
+  stage.addEventListener('pointermove', fingerMove);
+  stage.addEventListener('pointerup', fingerUp);
+  stage.addEventListener('pointercancel', fingerUp);
+  function holdSprint(on, e) {
+    if (e.cancelable) { e.preventDefault(); }
+    finger.sprint = on;
+    $('sprintTouch').classList.toggle('held', on);
+    if (on) { audio.unlock(); game.hitEgg(); }
+  }
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (type) {
+    $('sprintTouch').addEventListener(type, function (e) { holdSprint(false, e); });
+  });
+  $('sprintTouch').addEventListener('pointerdown', function (e) { holdSprint(true, e); });
+  $('spitTouch').addEventListener('pointerdown', function (e) {
+    e.preventDefault();
+    audio.unlock();
+    game.spit(true);
+    $('spitTouch').classList.add('held');
+    setTimeout(function () { $('spitTouch').classList.remove('held'); }, 120);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#simonPad button'), function (b, i) {
+    b.addEventListener('click', function () { if (simon) { simonPress(ARROWS[i].m); } });
+  });
+  window.addEventListener('pointerdown', function (e) { if (e.pointerType === 'touch') { useTouch(); } }, true);
+  if (touchFirst) { useTouch(); }
+
   ui.input = function () {
-    var x = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0) + pad.x;
-    var y = (keys.KeyW || keys.ArrowUp ? 1 : 0) - (keys.KeyS || keys.ArrowDown ? 1 : 0) + pad.y;
+    var x = (keys.KeyD || keys.ArrowRight ? 1 : 0) - (keys.KeyA || keys.ArrowLeft ? 1 : 0) + pad.x + finger.x;
+    var y = (keys.KeyW || keys.ArrowUp ? 1 : 0) - (keys.KeyS || keys.ArrowDown ? 1 : 0) + pad.y + finger.y;
     if (settings.invert) { y = -y; }
     var len = Math.hypot(x, y);
     if (len > 1) { x /= len; y /= len; }
-    return { x: x, y: y, sprint: keys.Space || keys.ShiftLeft || keys.ShiftRight || pad.sprint };
+    return { x: x, y: y, sprint: keys.Space || keys.ShiftLeft || keys.ShiftRight || pad.sprint || finger.sprint };
   };
 
   function pollPad(dt) {
@@ -877,6 +965,10 @@ EG.ui = (function () {
     audio.unlock();
     if (e.button === 2) { game.spit(); return; }
     game.hitEgg();
+    if (e.pointerType === 'touch') {
+      if (finger.id === null) { fingerDown(e); }
+      return;
+    }
     game.clickTo(e.clientX, e.clientY);
   });
 
